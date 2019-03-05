@@ -20,16 +20,25 @@ Take page screenshots in various resolutions, save them to disk, and optionally 
 
 
 * Free software: BSD license
-* Documentation: https://chutie.readthedocs.io.
+.. * Documentation: https://chutie.readthedocs.io.
 
 
 Features
 --------
 
-* TODO
+* [x] Take page screenshots in various resolutions
+* [x] Generate JSON metadata
+* [x] Generate static HTML from a jinja2 template
+* [x] Read URLs and Viewport configurations from one or more JSON or
+  YAML config files
+* [x] Read URLs and Viewport configurations from the CLI
+* [ ] Optionally display them in a Jupyter notebook
 
 Credits
 -------
+
+This package was developed by
+`@westurner <https://github.com/westurner>`__.
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 

@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/westurner/chutie
+    $ git clone git://gitlab.com/westurner/chutie
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/westurner/chutie/tarball/master
+    $ curl  -OL https://gitlab.com/westurner/chutie/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/westurner/chutie
-.. _tarball: https://github.com/westurner/chutie/tarball/master
+.. _Github repo: https://gitlab.com/westurner/chutie
+.. _tarball: https://gitlab.com/westurner/chutie/tarball/master

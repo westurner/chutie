@@ -1,0 +1,173 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- <link rel="icon" href="../../../../favicon.ico"> -->
+
+  {% set title=title or "Screenshots" %}
+  <title>{{ title }}</title>
+
+  <!-- Bootstrap core CSS -->
+  <!-- <link href="../../../../dist/css/bootstrap.min.css" rel="stylesheet"> -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- Custom styles for this template -->
+  <!-- <link href="starter-template.css" rel="stylesheet"> -->
+  <style>
+    body {
+      background: #f0f0ea;
+    }
+
+    img.screenshot {
+      max-width: 100%;
+      padding-bottom: 12px;
+    }
+    .noMaxwidth {
+      max-width: inherit !important;
+    }
+
+    .displayNone {
+      display: none;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+  <script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function(ev) {
+      $('.fullPage').toggleClass('displayNone');
+
+      $('#toggle-fullPage').click(function(e) {
+          e.preventDefault();
+          $('.fullPage').toggleClass('displayNone');
+          $(this).toggleClass('bold');
+      });
+
+      $('#toggle-maxwidth').click(function(e) {
+          e.preventDefault();
+          $('img.screenshot').toggleClass('noMaxwidth');
+          $(this).toggleClass('bold');
+      });
+      $('#toggle-viewports').click(function(e) {
+          e.preventDefault();
+          $('#viewportslist').toggleClass('displayNone');
+          $(this).toggleClass('bold');
+      });
+      $('#toggle-screenshotmeta').click(function(e) {
+          e.preventDefault();
+          $('.screenshotmeta').toggleClass('displayNone');
+          $(this).toggleClass('bold');
+      });
+  });
+  </script>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark"> <!-- fixed-top"> -->
+    <a class="navbar-brand" href="#">Screenshots</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#contents">Contents <span class="sr-only">(current)</span></a>
+        </li>
+
+        <!--
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Disabled</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu" aria-labelledby="dropdown01">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+      -->
+    </div>
+  </nav>
+
+<main role="main" class="container">
+<header>
+  <h1>{{ title }}</h1>
+</header>
+<h2><a name="contents">Contents</h2></a>
+<ul>
+  <li><a href="#contents">Contents</a></li>
+  <li><a href="#config" name="config">Configuration</a><ul>
+    <li><a href="#" id="toggle-fullPage">Toggle Show Full Page Screenshots</a></li>
+    <li><a href="#" id="toggle-maxwidth" class="bold">Toggle Screenshot Max Width</a></li>
+    <li><a href="#" id="toggle-screenshotmeta">Toggle Show Screenshot Raw Metadata</a></li>
+  </ul></li>
+{% for page_url, pageset in pages.items() %}
+  <li><a href="#{{page_url}}">{{page_url}}</a>
+    <ul>
+{% for page in pageset %}
+      <li class="{{- " fullPage" if page.fullPage else "" }}"><a href="#{{page.filename}}">{{page.filename}}</a></li>
+{% endfor %}
+    </ul>
+  </li>
+{% endfor %}
+</ul>
+
+<dl>
+  <dt>Date:</dt><dd>{{ date }}</dd> 
+  <dt><a href="#" id="toggle-viewports">Viewports</a></dt><dd id="viewportslist" class="displayNone"><code>
+{% for vpkey,vp in viewports.items() %}
+* {{vpkey}} => {{dict(vp)}}<br>
+{%- endfor %}
+  </code></dd>
+</dl>
+
+<hr/>
+{% for page_url, pageset in pages.items() %}
+<div class="pageset">
+  <h2><a name="{{ page_url }}">{{ page_url }}</a></h2>
+  <dl><dt>URL:</dt>
+    <dd><a href="{{ page_url }}">{{ page_url }}</a></dd>
+  </dl>
+{% for page in pageset %}
+  <div class="page {{- " fullPage" if page.fullPage else "" }}">
+    <dl>
+      <dt>Filename:</dt>
+      <dd><h3><a href="./{{page.filename}}">{{page.filename}}</a></h3></dd>
+      <dt>Title:</dt>
+      <dd><h4>{{ page.page.title }}</h4></dd>
+    </dl>
+    <a name="{{ page.filename }}"></a>
+    <a href="./{{page.path}}">
+      <img class="screenshot" src="./{{ page.path }}"><br/>{{page.path}}</a>
+    <pre class="screenshotmeta displayNone">
+{{page|pprint}}</pre>
+    <hr/>
+  </div>
+{% endfor %}
+</div>
+<hr/>
+{% endfor %}
+
+<footer>
+  <span>Made with <a href="https://gitlab.com/westurner/chutie">chutie</a>.</span>
+  <span class="date">{{ date }}</span>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
