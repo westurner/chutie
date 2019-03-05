@@ -20,16 +20,20 @@ Take page screenshots in various resolutions, save them to disk, and optionally 
 
 
 * Free software: BSD license
-* Documentation: https://chutie.readthedocs.io.
+.. * Documentation: https://chutie.readthedocs.io.
 
 
 Features
 --------
 
-* TODO
+* [ ] Take page screenshots in various resolutions
+* [ ] Optionally display them in a Jupyter notebook
 
 Credits
 -------
+
+This package was developed by
+`@westurner <https://github.com/westurner>`__.
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
