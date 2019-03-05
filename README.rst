@@ -26,7 +26,12 @@ Take page screenshots in various resolutions, save them to disk, and optionally 
 Features
 --------
 
-* [ ] Take page screenshots in various resolutions
+* [x] Take page screenshots in various resolutions
+* [x] Generate JSON metadata
+* [x] Generate static HTML from a jinja2 template
+* [x] Read URLs and Viewport configurations from one or more JSON or
+  YAML config files
+* [x] Read URLs and Viewport configurations from the CLI
 * [ ] Optionally display them in a Jupyter notebook
 
 Credits
