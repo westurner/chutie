@@ -94,6 +94,13 @@ class TestChutie(unittest.TestCase):
                 imgpath.unlink()
                 self.assertFalse(imgpath.exists())
 
+    def test_render_template(self):
+        template_name = Path(__file__).parent.parent / 'chutie' / 'screenshots.j2'
+        context = dict(pages={}, viewports={})
+        output = chutie.render_template(context, template_name=template_name)
+        self.assertIn('<html', output)
+        self.assertIn('<span>Made with', output)
+
     def test_command_line_interface(self):
         """Test the CLI."""
         runner = CliRunner()
