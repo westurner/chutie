@@ -78,24 +78,28 @@ class TestChutie(unittest.TestCase):
             "1024x768 mobile landscape devname",
         ]
 
-        output = sync(chutie.get_screenshots(urls, viewports))
-        assert output
-        print(output)
-        self.assertIn("about:blank", output["urls"])
-        self.assertIn("about:blank", output["pages"])
-        for url, pages in output["pages"].items():
+        context = sync(chutie.get_screenshots(urls, viewports))
+        assert context
+        for key in ["date", "urls", "viewports", "pages"]:
+            self.assertIn(key, context)
+        self.assertIn("about:blank", context["urls"])
+        self.assertIn("about:blank", context["pages"])
+        for url, pages in context["pages"].items():
             for page in pages:
-                from pprint import pformat
-
-                print(("page",))
-                print(pformat(page))
+                # from pprint import pformat
+                # print(("page",))
+                # print(pformat(page))
                 imgpath = Path(page["path"])
                 self.assertTrue(imgpath.exists())
                 imgpath.unlink()
                 self.assertFalse(imgpath.exists())
 
-        # TODO:
-        raise Exception(output)
+    def test_render_template(self):
+        template_name = Path(__file__).parent.parent / 'chutie' / 'screenshots.j2'
+        context = dict(pages={}, viewports={})
+        output = chutie.render_template(context, template_name=template_name)
+        self.assertIn('<html', output)
+        self.assertIn('<span>Made with', output)
 
     def test_command_line_interface(self):
         """Test the CLI."""
@@ -108,6 +112,17 @@ class TestChutie(unittest.TestCase):
         assert help_result.exit_code == 0
         assert "--help  Show this message and exit." in help_result.output
 
-        result = runner.invoke(cli.main, ["screenshots"])
-        assert result.exit_code == 0
+        result = runner.invoke(cli.main, ["screenshots", "--help"])
+        self.assertEqual(result.exit_code, 0)
         assert "Take screenshots of the URLs" in result.output
+
+        result = runner.invoke(cli.main, ["screenshots"])
+        self.assertEqual(result.exit_code, 2)
+        assert "You must specify" in result.output
+
+        result = runner.invoke(
+            cli.main,
+            ["screenshots", "-u", "about:blank",
+             "-r", "1024x768 mobile landscape devname"])
+        self.assertEqual(result.exit_code, 0)
+        assert "Successfully rendered to" in result.output

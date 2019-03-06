@@ -3,6 +3,7 @@
 """Console script for chutie."""
 import collections
 import json
+import pprint
 import sys
 
 from pathlib import Path
@@ -16,7 +17,7 @@ from chutie import chutie
 @click.group()
 def main(args=None):
     """Console script for chutie."""
-    click.echo("See the 'screenshots' command.")
+    # click.echo("See the 'screenshots' command.")
     return 0
 
 
@@ -51,6 +52,7 @@ def main(args=None):
 )
 @click.option(
     "--dest-html",
+    'output',
     default="chutie.html",
     help=(
         "Name of the HTML file to write chutie templated output to."
@@ -68,7 +70,17 @@ def main(args=None):
     ),
     multiple=True
 )
-def screenshots(urls, viewports, dest_path, dest_html, configs):
+@click.option(
+    "-t",
+    "--template",
+    "template_name",
+    default=None, # == "chutie/screenshots.j2",
+    help=(
+        "Path to a jinja2 template."
+        " Default: chutie/screenshots.j2"
+    ),
+)
+def screenshots(urls, viewports, dest_path, output, configs, template_name):
     """Take screenshots of the URLs with the given resolution strings,
     save them to dest-path,
     and write a chutie.json and a chutie.html
@@ -98,46 +110,63 @@ def screenshots(urls, viewports, dest_path, dest_html, configs):
             _urls.extend(cfg.get('urls', []))
             _viewports.extend(cfg.get('viewports', []))
             dest_path = cfg.get('dest_path', dest_path)
-            dest_html = cfg.get('dest_html', dest_html)
+            output = cfg.get('output', output)
 
     _urls.extend(urls)
     _viewports.extend(viewports)
 
-    cfg = dict(urls=_urls, viewports=_viewports, dest_path=dest_path, dest_html=dest_html)
+    cfg = dict(urls=_urls, viewports=_viewports, dest_path=dest_path, output=output)
     click.echo(cfg)
 
-    output = sync(chutie.get_screenshots(_urls, _viewports, dest_path))
+    context = sync(chutie.get_screenshots(_urls, _viewports, dest_path))
 
     jsonpath = Path(dest_path) / "chutie.json"
     with open(jsonpath, "w") as _file:
-        json.dump(output, _file, indent=2)
+        json.dump(context, _file, indent=2)
 
-    chutie.generate_html(output, write_to_path=dest_html)
+    chutie.render_template(context,
+                           template_name=template_name, write_to_path=output)
+    click.echo(f"Successfully rendered to {output}.")
+    return 0
 
 
 @click.command()
 @click.option(
+    "-f",
     "--jsonpath",
     default="chutie.json",
-    help="Path to a chutie.json file to template"
+    help=(
+        "Path to a chutie.json file to template"
+        " Default: chutie.json"
+    )
 )
 @click.option(
+    "-t",
     "--template",
-    default="screenshots.j2",
-    help="Name of a jinja2 template in ./chutie/ TODO",
+    "template_name",
+    default=None, # == "chutie/screenshots.j2",
+    help=(
+        "Name of a jinja2 template in ./chutie/ (TODO FileSystemLoader)"
+        " Default: chutie/screenshots.j2"
+    ),
 )
 @click.option(
-    "--dest-html",
+    "-o",
+    "--output",
     default="chutie.html",
     help=(
-        "Name of the HTML file to write chutie templated output to."
+        "Name of the file to write rendered template output to."
         " Default: chutie.html"
     ),
 )
-def template(jsonpath, template, dest_html):
+def template(jsonpath, template_name, output):
+    """Generate a chutie.html from a chutie.json and a jinja2 template"""
     with open(jsonpath) as _file:
-        ctxt = json.load(_file, object_pairs_hook=collections.OrderedDict) # collections.OrderedDict)
-    chutie.generate_html(ctxt, write_to_path=dest_html)
+        ctxt = json.load(_file, object_pairs_hook=collections.OrderedDict)
+    chutie.render_template(ctxt,
+                           template_name=template_name, write_to_path=output)
+    click.echo(pprint.pformat(locals()))
+    return 0
 
 main.add_command(screenshots)
 main.add_command(template)
