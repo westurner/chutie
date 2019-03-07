@@ -60,7 +60,7 @@ async def get_screenshots(urls, viewports, dest_path="."):
     """
     logging.basicConfig()  # TODO
     log = logging.getLogger()
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
     browser = await launch()  # _get_browser()
 
@@ -114,8 +114,8 @@ async def get_screenshots(urls, viewports, dest_path="."):
                 )
                 data["page"] = page_data
                 pages.setdefault(url, []).append(data)
+                log.info(data)
                 log.debug((url, data))
-                #print((url, data))
     return metadata
 
 
