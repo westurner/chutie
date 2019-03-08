@@ -3,6 +3,7 @@
 """Console script for chutie."""
 import collections
 import json
+import os
 import pprint
 import sys
 
