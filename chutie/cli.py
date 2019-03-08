@@ -53,10 +53,10 @@ def main(args=None):
 @click.option(
     "--dest-html",
     'output',
-    default="chutie.html",
+    default="index.html",
     help=(
         "Name of the HTML file to write chutie templated output to."
-        " Default: chutie.html"
+        " Default: index.html"
     ),
 )
 @click.option(
@@ -83,7 +83,7 @@ def main(args=None):
 def screenshots(urls, viewports, dest_path, output, configs, template_name):
     """Take screenshots of the URLs with the given resolution strings,
     save them to dest-path,
-    and write a chutie.json and a chutie.html
+    and write a chutie.json and a index.html
     """
     if not ((bool(urls) and bool(viewports)) or bool(configs)):
         raise click.UsageError(
@@ -124,9 +124,15 @@ def screenshots(urls, viewports, dest_path, output, configs, template_name):
     with open(jsonpath, "w") as _file:
         json.dump(context, _file, indent=2)
 
-    chutie.render_template(context,
-                           template_name=template_name, write_to_path=output)
-    click.echo(f"Successfully rendered to {output}.")
+    if os.path.sep not in output:
+        output_path = Path(dest_path) / output
+    else:
+        output_path = output
+    chutie.render_template(
+        context,
+        template_name=template_name,
+        write_to_path=output_path)
+    click.echo(f"Successfully rendered to {output_path}.")
     return 0
 
 
@@ -153,14 +159,14 @@ def screenshots(urls, viewports, dest_path, output, configs, template_name):
 @click.option(
     "-o",
     "--output",
-    default="chutie.html",
+    default="index.html",
     help=(
         "Name of the file to write rendered template output to."
-        " Default: chutie.html"
+        " Default: index.html"
     ),
 )
 def template(jsonpath, template_name, output):
-    """Generate a chutie.html from a chutie.json and a jinja2 template"""
+    """Generate an index.html from a chutie.json and a jinja2 template"""
     with open(jsonpath) as _file:
         ctxt = json.load(_file, object_pairs_hook=collections.OrderedDict)
     chutie.render_template(ctxt,
