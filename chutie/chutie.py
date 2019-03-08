@@ -83,13 +83,13 @@ async def get_screenshots(urls, viewports, dest_path="."):
         dest.mkdir(parents=True)
     for url in urls:
         path_filename_prefix = url_to_filename(url)
+        page = await browser.newPage()
+        await page.goto(url)
         for respathstr, resdict in _viewports.items():
             page_options = resdict
-            page = await browser.newPage()
             await page.setViewport(
                 viewport=page_options
             )  # TODO: is newPage necessary for each viewport?
-            await page.goto(url)
             for fullPage in (False, True):
                 fullpagestr = "__full" if fullPage else ""
                 path_filename = (
