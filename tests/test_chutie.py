@@ -101,7 +101,7 @@ class TestChutie(unittest.TestCase):
         self.assertIn('<html', output)
         self.assertIn('<span>Made with', output)
 
-    def test_command_line_interface(self):
+    def test_cli_help(self):
         """Test the CLI."""
         runner = CliRunner()
         result = runner.invoke(cli.main)
@@ -116,13 +116,55 @@ class TestChutie(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         assert "Take screenshots of the URLs" in result.output
 
+        result = runner.invoke(cli.main, ["template", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        assert "from a chutie.json and a jinja2 template" in result.output
+
+    def test_cli_nothing_specified(self):
+        runner = CliRunner()
+        result = runner.invoke(cli.main, [])
+        self.assertEqual(result.exit_code, 2)
+        assert "You must specify" in result.output
+
         result = runner.invoke(cli.main, ["screenshots"])
         self.assertEqual(result.exit_code, 2)
         assert "You must specify" in result.output
 
+        result = runner.invoke(cli.main, ["template"])
+        self.assertEqual(result.exit_code, 2)
+        assert "You must specify" in result.output
+
+    def test_cli_screenshots(self):
+        runner = CliRunner()
         result = runner.invoke(
             cli.main,
             ["screenshots", "-u", "about:blank",
              "-r", "1024x768 mobile landscape devname"])
         self.assertEqual(result.exit_code, 0)
+        assert "Successfully rendered to" in result.output
+
+    def test_cli_config_file(self):
+        runner = CliRunner()
+        basepath = Path(__file__).parent
+        cfg_viewports_json = basepath / 'example_viewports.json'
+        cfg_viewports_yaml = basepath / 'example_viewports.yaml'
+        cfg_url_json = basepath / 'example_url.json'
+        cfg_url_yaml = basepath / 'example_url.yaml'
+
+        result = runner.invoke(
+            cli.main, ["screenshots",
+             "-c", cfg_viewports_json,
+             "-c", cfg_url_json,
+             "-r", "1x1 mobile landscape devname"])
+        self.assertEqual(result.exit_code, 0)
+        # TODO: test that all URLs and resolutions are identified
+        assert "Successfully rendered to" in result.output
+
+        result = runner.invoke(
+            cli.main, ["screenshots",
+             "-c", cfg_url_yaml,
+             "-c", cfg_viewports_yaml,
+             "-r", "1x1 mobile landscape devname"])
+        self.assertEqual(result.exit_code, 0)
+        # TODO: test that all URLs and resolutions are identified
         assert "Successfully rendered to" in result.output

@@ -5,6 +5,7 @@ import collections
 import json
 import os
 import pprint
+import shutil
 import sys
 
 from pathlib import Path
@@ -94,8 +95,19 @@ def screenshots(urls, viewports, dest_path, output, configs, template_name):
     _urls = []
     _viewports = []
 
+    _dest_path = Path(dest_path)
+    _dest_path.mkdir(parents=True, exist_ok=True)
+
     if bool(configs):
         for config in configs:
+            _configpath = Path(config)
+            if not _configpath.exists() and not _configpath.is_file():
+                raise click.BadParameter(
+                    "Config file not found: {_configpath}")
+            # Copy the config into _dest_path
+            shutil.copy2(
+                str(_configpath),
+                str(_dest_path / _configpath.name))
             if config.endswith('.json'):
                 with open(config) as _file:
                     cfg = json.load(_file)
@@ -121,12 +133,12 @@ def screenshots(urls, viewports, dest_path, output, configs, template_name):
 
     context = sync(chutie.get_screenshots(_urls, _viewports, dest_path))
 
-    jsonpath = Path(dest_path) / "chutie.json"
+    jsonpath = _dest_path / "chutie.json"
     with open(jsonpath, "w") as _file:
         json.dump(context, _file, indent=2)
 
     if os.path.sep not in output:
-        output_path = Path(dest_path) / output
+        output_path = _dest_path / output
     else:
         output_path = output
     chutie.render_template(
