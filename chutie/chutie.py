@@ -2,6 +2,7 @@
 
 """Main module."""
 
+import asyncio
 import datetime
 import logging
 import os
@@ -48,7 +49,8 @@ def viewportstr_to_dict(viewportstr):
     )
 
 
-async def get_screenshots(urls, viewports, dest_path="."):
+async def get_screenshots(urls, viewports, dest_path=".",
+                          sleep_after_viewport=5):
     """
     Args:
         urls (list[str]): list of urls to retrieve and take screenshots of
@@ -84,38 +86,42 @@ async def get_screenshots(urls, viewports, dest_path="."):
     for url in urls:
         path_filename_prefix = url_to_filename(url)
         page = await browser.newPage()
-        await page.goto(url)
-        for respathstr, resdict in _viewports.items():
-            page_options = resdict
-            await page.setViewport(
-                viewport=page_options
-            )  # TODO: is newPage necessary for each viewport?
-            for fullPage in (False, True):
-                fullpagestr = "__full" if fullPage else ""
-                path_filename = (
-                    f"{path_filename_prefix}__{respathstr}{fullpagestr}.png"
-                )
-                data = {
-                    "url": url,
-                    "date": datetime.datetime.now().isoformat(),
-                    "filename": path_filename,
-                }
-                screenshot_options = {
-                    "path": str(dest / path_filename),
-                    "fullPage": fullPage,
-                }
-                await page.screenshot(screenshot_options)
-                data.update(screenshot_options)
-                data.update(page_options)
-                page_data = dict(
-                    url=page.url,
-                    title=await page.title(),
-                    viewport=page.viewport,
-                )
-                data["page"] = page_data
-                pages.setdefault(url, []).append(data)
-                log.info(data)
-                log.debug((url, data))
+        try:
+            await page.goto(url)
+            for respathstr, resdict in _viewports.items():
+                page_options = resdict
+                await page.setViewport(
+                    viewport=page_options
+                )  # TODO: is newPage necessary for each viewport?
+                await asyncio.sleep(sleep_after_viewport)
+                for fullPage in (False, True):
+                    fullpagestr = "__full" if fullPage else ""
+                    path_filename = (
+                        f"{path_filename_prefix}__{respathstr}{fullpagestr}.png"
+                    )
+                    data = {
+                        "url": url,
+                        "date": datetime.datetime.now().isoformat(),
+                        "filename": path_filename,
+                    }
+                    screenshot_options = {
+                        "path": str(dest / path_filename),
+                        "fullPage": fullPage,
+                    }
+                    await page.screenshot(screenshot_options)
+                    data.update(screenshot_options)
+                    data.update(page_options)
+                    page_data = dict(
+                        url=page.url,
+                        title=await page.title(),
+                        viewport=page.viewport,
+                    )
+                    data["page"] = page_data
+                    pages.setdefault(url, []).append(data)
+                    log.info(data)
+                    log.debug((url, data))
+        finally:
+            await page.close()
     return metadata
 
 
